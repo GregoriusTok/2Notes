@@ -1,4 +1,5 @@
 #!!THIS IS THE POST HACKATHON VERSION!!
+#Also w/o AI
 import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
@@ -6,7 +7,7 @@ import os
 from datetime import date
 
 relfolderpath = "Notes"
-current_file_path = str(date.today()) + "-" + relfolderpath + "-"
+current_file_path = ""
 
 def update_filebox(folderpath):
   filebox.delete(0, tk.END)
@@ -17,7 +18,7 @@ def update_filebox(folderpath):
 def save_file():
   global current_file_path
 
-  if ".txt" not in file_bar_entry.get():
+  if "." not in file_bar_entry.get():
     file_bar_entry.insert(tk.END, ".txt")
   current_file_path = relfolderpath + "\\" + file_bar_entry.get()
 
@@ -151,7 +152,7 @@ def resize_image(event):
 
 def filename():
   global current_file_path
-  current_file_path = str(date.today()) + "-" + relfolderpath + "-"
+  current_file_path = "-" + relfolderpath + "-" + str(date.today())
   file_bar_entry.delete("0", tk.END)
   file_bar_entry.insert("0", current_file_path)
 
@@ -174,7 +175,7 @@ scrollbar = tk.Scrollbar(window, orient="vertical")
 scrollbar.grid(column = 2, row=0, padx=(0,40), sticky="ns", pady=(31,0))
 
 # Create an Entry widget for text input
-text_entry = tk.Text(window, wrap="word", height=10, width=40, yscrollcommand=scrollbar.set)
+text_entry = tk.Text(window, wrap="word", height=10, width=40, yscrollcommand=scrollbar.set, background="#aefafc")
 text_entry.tag_configure("bold", font=("Helvetica", 9, "bold"))
 text_entry.tag_configure("italic", font=("Helvetica", 9, "italic"))
 text_entry.tag_configure("underline", underline=True)
@@ -187,6 +188,7 @@ file_bar_label.grid(column=0, row=0, columnspan=1, pady=(5,0), padx=(50,0), stic
 file_bar_entry = tk.Entry(window, text=current_file_path)
 file_bar_entry.insert(tk.END, current_file_path)
 file_bar_entry.grid(column=0, row=0, columnspan=2, pady=(10,0), padx=(85,0), sticky="new")
+filename()
 
 # text formatting tool bar for bold/italics/underline
 formatting_toolbar = tk.Frame(window)
