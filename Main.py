@@ -3,9 +3,10 @@ import tkinter as tk
 from tkinter import filedialog
 from PIL import Image, ImageTk
 import os
+from datetime import date
 
 relfolderpath = "Notes"
-current_file_path = ""
+current_file_path = str(date.today()) + "-" + relfolderpath + "-"
 
 def update_filebox(folderpath):
   filebox.delete(0, tk.END)
@@ -14,92 +15,97 @@ def update_filebox(folderpath):
     filebox.insert(tk.END, item)
 
 def save_file():
-    global current_file_path
+  global current_file_path
 
-    current_file_path = relfolderpath + "\\" + file_bar_entry.get()
+  if ".txt" not in file_bar_entry.get():
+    file_bar_entry.insert(tk.END, ".txt")
+  current_file_path = relfolderpath + "\\" + file_bar_entry.get()
 
-    if current_file_path:
-      def get_format_markers(marker):
-          ranges = list(text_entry.tag_ranges(marker))
-          return [(text_entry.get(start, end), (start, end)) for start, end in zip(ranges[0::2], ranges[1::2])]
+  if current_file_path:
+    def get_format_markers(marker):
+        ranges = list(text_entry.tag_ranges(marker))
+        return [(text_entry.get(start, end), (start, end)) for start, end in zip(ranges[0::2], ranges[1::2])]
 
-      bolded = get_format_markers("bold")
-      italiced = get_format_markers("italic")
-      undered = get_format_markers("underline")
+    bolded = get_format_markers("bold")
+    italiced = get_format_markers("italic")
+    undered = get_format_markers("underline")
 
-      content = text_entry.get("1.0", tk.END)
+    content = text_entry.get("1.0", tk.END)
 
-      for text, (start, end) in bolded:
-          content = content.replace(text, f"<^B^>{text}<^B^>", 1)
-      for text, (start, end) in italiced:
-          content = content.replace(text, f"<^I^>{text}<^I^>", 1)
-      for text, (start, end) in undered:
-          content = content.replace(text, f"<^U^>{text}<^U^>", 1)
+    for text, (start, end) in bolded:
+        content = content.replace(text, f"<^B^>{text}<^B^>", 1)
+    for text, (start, end) in italiced:
+        content = content.replace(text, f"<^I^>{text}<^I^>", 1)
+    for text, (start, end) in undered:
+        content = content.replace(text, f"<^U^>{text}<^U^>", 1)
 
-      with open(current_file_path, "w") as file:
-          file.write(content)
-    
-    update_filebox(relfolderpath)
+    with open(current_file_path, "w") as file:
+        file.write(content)
+  
+  update_filebox(relfolderpath)
     
 def FolderQ():
-    global relfolderpath
-    try:
-      lfolderpath = filedialog.askdirectory()
-      relfolderpath = os.path.relpath(lfolderpath)
-      folderButton.config(text="Folder: " + relfolderpath)
-      update_filebox(relfolderpath)
-    except ValueError:
-      pass
+  global relfolderpath
+  global current_file_path
+  try:
+    lfolderpath = filedialog.askdirectory()
+    relfolderpath = os.path.relpath(lfolderpath)
+    folderButton.config(text="Folder: " + relfolderpath)
+    update_filebox(relfolderpath)
+  except ValueError:
+    pass
+
+  filename()
 
 def fileselection(event):
-    global current_file_path
+  global current_file_path
 
-    selected_file = filebox.get(filebox.curselection()[0])
-    current_file_path = os.path.join(relfolderpath, selected_file)
-    file_bar_entry.delete("0", tk.END)
-    file_bar_entry.insert(tk.END, current_file_path.replace(relfolderpath + "\\", ""))
+  selected_file = filebox.get(filebox.curselection()[0])
+  current_file_path = os.path.join(relfolderpath, selected_file)
+  file_bar_entry.delete("0", tk.END)
+  file_bar_entry.insert(tk.END, current_file_path.replace(relfolderpath + "\\", ""))
 
-    with open(relfolderpath + "\\" + filebox.get(filebox.curselection()[0])) as file:
-      content = file.read()
+  with open(relfolderpath + "\\" + filebox.get(filebox.curselection()[0])) as file:
+    content = file.read()
 
-      #Remove Bold Mark
-      boldsplit = content.split("<^B^>")
-      boldsect = boldsplit[1::2]
-      content = "".join(boldsplit)
+    #Remove Bold Mark
+    boldsplit = content.split("<^B^>")
+    boldsect = boldsplit[1::2]
+    content = "".join(boldsplit)
 
-      #Remove Italic Mark
-      italicsplit = content.split("<^I^>")
-      italicsect = italicsplit[1::2]
-      content = "".join(italicsplit)
+    #Remove Italic Mark
+    italicsplit = content.split("<^I^>")
+    italicsect = italicsplit[1::2]
+    content = "".join(italicsplit)
 
-      #Remove Underline Mark
-      undersplit = content.split("<^U^>")
-      undersect = undersplit[1::2]
-      content = "".join(undersplit)
+    #Remove Underline Mark
+    undersplit = content.split("<^U^>")
+    undersect = undersplit[1::2]
+    content = "".join(undersplit)
 
-      text_entry.delete("1.0", tk.END)  # Clear existing text
-      text_entry.insert(tk.END, content)
-    
-    #Check Bolded
-    for i in boldsect:
-      start_index = text_entry.search(i, "1.0", tk.END)
-      if start_index:
-          end_index = f"{start_index}+{len(i)}c"
-          text_entry.tag_add("bold", start_index, end_index)
-    
-    #Check Italics
-    for i in italicsect:
-      start_index = text_entry.search(i, "1.0", tk.END)
-      if start_index:
-          end_index = f"{start_index}+{len(i)}c"
-          text_entry.tag_add("italic", start_index, end_index)
-    
-    #Check Underline
-    for i in undersect:
-      start_index = text_entry.search(i, "1.0", tk.END)
-      if start_index:
-          end_index = f"{start_index}+{len(i)}c"
-          text_entry.tag_add("underline", start_index, end_index)
+    text_entry.delete("1.0", tk.END)  # Clear existing text
+    text_entry.insert(tk.END, content)
+  
+  #Check Bolded
+  for i in boldsect:
+    start_index = text_entry.search(i, "1.0", tk.END)
+    if start_index:
+        end_index = f"{start_index}+{len(i)}c"
+        text_entry.tag_add("bold", start_index, end_index)
+  
+  #Check Italics
+  for i in italicsect:
+    start_index = text_entry.search(i, "1.0", tk.END)
+    if start_index:
+        end_index = f"{start_index}+{len(i)}c"
+        text_entry.tag_add("italic", start_index, end_index)
+  
+  #Check Underline
+  for i in undersect:
+    start_index = text_entry.search(i, "1.0", tk.END)
+    if start_index:
+        end_index = f"{start_index}+{len(i)}c"
+        text_entry.tag_add("underline", start_index, end_index)
 
 def toggle_bold():
   try:
@@ -143,6 +149,12 @@ def resize_image(event):
     background_label.image = updated_photo
   window.after(10, delayed_resize)
 
+def filename():
+  global current_file_path
+  current_file_path = str(date.today()) + "-" + relfolderpath + "-"
+  file_bar_entry.delete("0", tk.END)
+  file_bar_entry.insert("0", current_file_path)
+
 # Create the main window
 window = tk.Tk()
 window.title("Two Note")
@@ -170,11 +182,11 @@ text_entry.grid(column=0, row=0, columnspan=2, pady=(30, 0), padx=(50, 0), stick
 scrollbar.config(command=text_entry.yview)
 
 #File name bar
-file_bar_label = tk.Label(window, text="File: ")
-file_bar_label.grid(column=0, row=0, columnspan=1, pady=(10,0), padx=(50,0), sticky="nw")
+file_bar_label = tk.Button(window, text="File: ", command=filename)
+file_bar_label.grid(column=0, row=0, columnspan=1, pady=(5,0), padx=(50,0), sticky="nw")
 file_bar_entry = tk.Entry(window, text=current_file_path)
 file_bar_entry.insert(tk.END, current_file_path)
-file_bar_entry.grid(column=0, row=0, columnspan=2, pady=(10,0), padx=(81,0), sticky="new")
+file_bar_entry.grid(column=0, row=0, columnspan=2, pady=(10,0), padx=(85,0), sticky="new")
 
 # text formatting tool bar for bold/italics/underline
 formatting_toolbar = tk.Frame(window)
@@ -191,7 +203,7 @@ underline_button.grid(column=2, row=0, padx=(0,0), pady=(0,0))
 
 #Save Buttons
 save_button = tk.Button(window, text="Save", command=save_file)
-save_button.grid(column=3, row=1, sticky="nw", padx=(0, 0))
+save_button.grid(column=3, row=1, sticky="ne", padx=(0, 0))
 
 #Folder Button
 folderButton = tk.Button(window, text="Folder: " + relfolderpath, command=FolderQ)
