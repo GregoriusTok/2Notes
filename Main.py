@@ -1,7 +1,8 @@
 #!!THIS IS THE POST HACKATHON VERSION!!
-#Also w/o AI
+#ALSO W/O AI
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import ttk
 from PIL import Image, ImageTk
 import os
 from datetime import date
@@ -215,14 +216,14 @@ folderButton.grid(column=3, row=0, sticky="nwe", pady=(10, 0))
 filelist = os.listdir(relfolderpath)
 filevar = tk.StringVar(value=filelist)
 filebox = tk.Listbox(window, listvariable=filevar)
-filebox.grid(row=0, column=3, sticky="nes", padx=(0,0), pady=(32,0))
+filebox.grid(row=0, column=3, sticky="news", padx=(0,0), pady=(32,0))
 filebox.bind("<Double-1>", fileselection)
 
 #Making things resizable
 window.columnconfigure(0, weight=0)
 window.columnconfigure(1, weight=4)
 window.columnconfigure(2, weight=0)
-window.columnconfigure(3, weight=0)
+window.columnconfigure(3, weight=1)
 window.rowconfigure(0, weight=5)
 window.rowconfigure(1, weight=1)
 # window.rowconfigure(2, weight=1)
